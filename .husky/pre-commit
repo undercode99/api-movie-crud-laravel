@@ -1,0 +1,6 @@
+#!/bin/sh
+echo "Check code style..."
+composer lint
+
+echo "Test code..."
+# composer test

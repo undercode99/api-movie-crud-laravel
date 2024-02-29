@@ -1,0 +1,516 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Movie App API",
+        "version": "1"
+    },
+    "paths": {
+        "/api/v1/movies": {
+            "get": {
+                "tags": [
+                    "movies"
+                ],
+                "summary": "Get list of movies",
+                "description": "Retrieves a list of movies with pagination and sorting",
+                "operationId": "getMovies",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of items to return per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number to retrieve",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Movie"
+                                            }
+                                        },
+                                        "links": {
+                                            "properties": {
+                                                "first": {
+                                                    "type": "string"
+                                                },
+                                                "last": {
+                                                    "type": "string"
+                                                },
+                                                "prev": {
+                                                    "type": "string"
+                                                },
+                                                "next": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer"
+                                                },
+                                                "from": {
+                                                    "type": "integer"
+                                                },
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "to": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "movies"
+                ],
+                "summary": "Create movie",
+                "description": "Creates a new movie",
+                "operationId": "createMovie",
+                "requestBody": {
+                    "description": "Movie data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MovieUpdateOrCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/MovieDetail"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "year": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The year field must match the format Y."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/movies/{slug}": {
+            "get": {
+                "tags": [
+                    "movies"
+                ],
+                "summary": "Get movie by slug",
+                "description": "Retrieves a movie by its slug",
+                "operationId": "getMovieBySlug",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug of the movie",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "raya-and-the-last-dragon-2021"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/MovieDetail"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Movie not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Movie not found"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/movies/{id}": {
+            "put": {
+                "tags": [
+                    "movies"
+                ],
+                "summary": "Update movie",
+                "description": "Updates a movie",
+                "operationId": "updateMovie",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the movie",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Movie data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MovieUpdateOrCreate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Movie updated successfully"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 400
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "year": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The year field must match the format Y."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "movies"
+                ],
+                "summary": "Delete movie",
+                "description": "Deletes a movie",
+                "operationId": "deleteMovie",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the movie",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Movie deleted successfully"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Movie not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Movie not found"
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Movie": {
+                "title": "Movie",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "raya-and-the-last-dragon-2021"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Raya and the Last Dragon"
+                    },
+                    "rating": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 8.5
+                    },
+                    "year": {
+                        "type": "integer",
+                        "example": 2021
+                    }
+                },
+                "type": "object"
+            },
+            "MovieUpdateOrCreate": {
+                "title": "MovieUpdateOrCreate",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Raya and the Last Dragon"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "raya-and-the-last-dragon-2021",
+                        "nullable": true
+                    },
+                    "category": {
+                        "type": "string",
+                        "example": "Animation"
+                    },
+                    "year": {
+                        "type": "integer",
+                        "example": 2021
+                    },
+                    "rating": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 8.5
+                    },
+                    "duration": {
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Raya and the Last Dragon is a 2021 American fantasy adventure film directed by Brad Bird and written by Brad Bird and Jeremy Dawson."
+                    }
+                },
+                "type": "object"
+            },
+            "MovieDetail": {
+                "title": "MovieDetail",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "raya-and-the-last-dragon-2021"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Raya and the Last Dragon"
+                    },
+                    "category": {
+                        "type": "string",
+                        "example": "Animation"
+                    },
+                    "year": {
+                        "type": "integer",
+                        "example": 2021
+                    },
+                    "rating": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 8.5
+                    },
+                    "duration": {
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "duration_humanized": {
+                        "type": "string",
+                        "example": "1h 40m"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Raya and the Last Dragon is a 2021 American fantasy adventure film directed by Brad Bird and written by Brad Bird and Jeremy Dawson."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2021-01-01T00:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2021-01-01T00:00:00.000000Z"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}
